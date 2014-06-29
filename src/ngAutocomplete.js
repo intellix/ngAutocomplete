@@ -29,7 +29,7 @@
  *
  * Usage:
  *
- * <input type="text"  ng-autocomplete ng-model="autocomplete" options="options" details="details/>
+ * <input type="text"  ng-map-autocomplete ng-model="autocomplete" options="options" details="details/>
  *
  * + ng-model - autocomplete textbox value
  *
@@ -57,7 +57,8 @@ angular.module("ngMapAutocomplete", [])
             scope: {
                 ngModel: '=ngModel',
                 options: '=?',
-                details: '=?'
+                details: '=?',
+                gPlace: '=?'
             },
             link: function (scope, element, attrs, ngModel) {
                 if (!ngModel) {
@@ -106,20 +107,20 @@ angular.module("ngMapAutocomplete", [])
                 }
                 google.maps.event.addListener(scope.gPlace, 'place_changed', function () {
                     var result = scope.gPlace.getPlace();
-                    if (result !== undefined) {
-                        if (result.address_components !== undefined) {
+                    if (angular.isDefined(result) && angular.isDefined(result.address_components)) {
 
-                            scope.$apply(function () {
+                        scope.$apply(function () {
 
-                                scope.details = result;
-                                scope.details.description = element.val();
-                                ngModel.$setViewValue(element.val());
+                            scope.details = result;
+                            scope.details.description = element.val();
+                            ngModel.$setViewValue(element.val());
+                        });
+                    }
+                    else {
+                        if (watchEnter) {
+                            getPlace({
+                                name: ngModel.$modelValue
                             });
-                        }
-                        else {
-                            if (watchEnter) {
-                                getPlace(result);
-                            }
                         }
                     }
                 });
